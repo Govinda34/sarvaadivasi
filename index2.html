@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>सर्व आदिवासी समाज - डिजिटल ई-रजिस्ट्रेशन एवं परिचय मंच</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Poppins', 'Tiro Devanagari Hindi', sans-serif; }
+        .tribal-pattern {
+            background-color: #064e3b;
+            background-image: radial-gradient(#047857 1.2px, transparent 1.2px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 min-h-screen flex flex-col justify-between">
+
+    <!-- शीर्ष हेडर -->
+    <header class="tribal-pattern text-white py-6 px-4 shadow-lg border-b-4 border-amber-500">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-full bg-amber-500 text-stone-900 flex items-center justify-center text-3xl shadow-md border-2 border-white">
+                    <i class="fa-solid fa-feather"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide">सर्व आदिवासी समाज</h1>
+                    <p class="text-xs md:text-sm text-emerald-200">डिजिटल डायरेक्टरी, सदस्यता एवं वैवाहिक परिचय मंच</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openFormModal('general')" class="bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl text-sm shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> सामान्य सदस्यता
+                </button>
+                <button onclick="openFormModal('matrimony')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-ring"></i> युवक-युवती पंजीयन
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- मुख्य सामग्री (डैशबोर्ड ও कार्ड्स) -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-8 flex-1">
+        
+        <!-- फ़िल्टर और सर्च बार -->
+        <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-stone-200 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <div class="md:col-span-2 relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-stone-400"></i>
+                    <input type="text" id="searchInput" oninput="renderCards()" placeholder="नाम, गोत्र, जिला या व्यवसाय से खोजें..." 
+                           class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                </div>
+                <div>
+                    <select id="typeFilter" onchange="renderCards()" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none bg-white font-medium">
+                        <option value="ALL">सभी रिकॉर्ड्स (All)</option>
+                        <option value="MATRIMONY">वैवाहिक (युवक-युवती)</option>
+                        <option value="GENERAL">सामान्य सदस्य</option>
+                    </select>
+                </div>
+                <div>
+                    <select id="tribeFilter" onchange="renderCards()" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none bg-white font-medium">
+                        <option value="ALL">सभी वर्ग (Tribe)</option>
+                        <option value="गोंड">गोंड</option>
+                        <option value="हलबा">हलबा</option>
+                        <option value="उरांव">उरांव</option>
+                        <option value="भतरा">भतरा</option>
+                        <option value="कंवर">कंवर</option>
+                        <option value="मुरिया/माड़िया">मुरिया/माड़िया</option>
+                        <option value="अन्य">अन्य</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- कार्ड्स लिस्टिंग ग्रिड -->
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-stone-800">पंजीकृत प्रोफाइल सूची (<span id="totalCount">0</span>)</h2>
+                <span class="text-xs text-stone-500"><i class="fa-solid fa-circle-info mr-1 text-emerald-700"></i>पूरा विवरण देखने के लिए कार्ड पर क्लिक करें</span>
+            </div>
+
+            <div id="cardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- कार्ड्स JavaScript द्वारा रेंडर होंगे -->
+            </div>
+
+            <!-- डेटा न मिलने पर -->
+            <div id="noDataMsg" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-stone-300">
+                <i class="fa-solid fa-folder-open text-4xl text-stone-400 mb-2"></i>
+                <p class="text-stone-600 font-medium">कोई प्रोफाइल नहीं मिली!</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL 1: पंजीयन फॉर्म (General + Matrimonial) -->
+    <div id="formModal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden my-8">
+            <div class="bg-emerald-800 text-white px-6 py-4 flex justify-between items-center">
+                <div>
+                    <h3 id="formTitle" class="text-lg font-bold">डिजिटल पंजीयन फॉर्म</h3>
+                    <p class="text-xs text-emerald-200">कृपया सभी सही और सत्यापित विवरण भरें</p>
+                </div>
+                <button onclick="closeModal('formModal')" class="text-stone-300 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="registrationForm" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <input type="hidden" id="entryType" value="general">
+
+                <!-- फॉर्म टाइप टॉगल -->
+                <div class="grid grid-cols-2 gap-2 bg-stone-100 p-1 rounded-xl">
+                    <button type="button" id="tabGeneral" onclick="switchFormTab('general')" class="py-2 text-xs font-bold rounded-lg transition bg-white shadow text-emerald-900">
+                        सामान्य सदस्यता
+                    </button>
+                    <button type="button" id="tabMatrimony" onclick="switchFormTab('matrimony')" class="py-2 text-xs font-bold rounded-lg transition text-stone-600">
+                        अविवाहित युवक-युवती (बायोडाटा)
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">पूरा नाम *</label>
+                        <input type="text" id="fullName" required class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">लिंग (Gender) *</label>
+                        <select id="gender" required class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:ring-2 focus:ring-emerald-700 focus:outline-none bg-white">
+                            <option value="पुरुष">पुरुष (Male)</option>
+                            <option value="महिला">महिला (Female)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">पिता / अभिभावक का नाम *</label>
+                        <input type="text" id="guardianName" required class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">मोबाइल नंबर (WhatsApp) *</label>
+                        <input type="tel" id="mobile" required maxlength="10" placeholder="10 अंक" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">जनजाति वर्ग (Tribe) *</label>
+                        <select id="tribe" required class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:ring-2 focus:ring-emerald-700 focus:outline-none bg-white">
+                            <option value="गोंड">गोंड</option>
+                            <option value="हलबा">हलबा</option>
+                            <option value="उरांव">उरांव</option>
+                            <option value="भतरा">भतरा</option>
+                            <option value="कंवर">कंवर</option>
+                            <option value="मुरिया/माड़िया">मुरिया/माड़िया</option>
+                            <option value="अन्य">अन्य</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">गोत्र (Clan) *</label>
+                        <input type="text" id="gotra" required placeholder="जैसे: मंडावी, नेताम, सोरी..." class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- केवल वैवाहिक (Matrimonial) के लिए अतिरिक्त फील्ड्स -->
+                <div id="matrimonyFields" class="hidden p-4 bg-rose-50 border border-rose-200 rounded-xl space-y-3">
+                    <p class="text-xs font-bold text-rose-800 border-b border-rose-200 pb-1">
+                        <i class="fa-solid fa-heart mr-1"></i> वैवाहिक बायोडाटा विशेष विवरण
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">जन्म तिथि (DOB) *</label>
+                            <input type="date" id="dob" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">ऊंचाई (Height)</label>
+                            <input type="text" id="height" placeholder="उदा: 5 फीट 6 इंच" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">शैक्षणिक योग्यता *</label>
+                            <input type="text" id="education" placeholder="उदा: M.A, B.Tech, B.Ed" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none bg-white">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">कार्य / व्यवसाय / पद</label>
+                            <input type="text" id="occupation" placeholder="उदा: शिक्षक, निजी कंपनी, कृषि" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">मासिक / वार्षिक आय</label>
+                            <input type="text" id="income" placeholder="उदा: ₹35,000 / माह" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none bg-white">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">जिला *</label>
+                        <input type="text" id="district" required placeholder="जैसे: कोंडागांव, बस्तर, रायपुर" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">ब्लॉक / पूरा पता *</label>
+                        <input type="text" id="address" required placeholder="ग्राम / वार्ड / ब्लॉक" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3 border-t">
+                    <button type="button" onclick="closeModal('formModal')" class="px-5 py-2.5 rounded-xl text-stone-600 text-sm font-semibold hover:bg-stone-100 transition">रद्द करें</button>
+                    <button type="submit" class="bg-emerald-800 hover:bg-emerald-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md transition">पंजीयन सुरक्षित करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: संपूर्ण प्रोफाइल विवरण पॉप-अप (Card Click Details View) -->
+    <div id="detailsModal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden border border-stone-200">
+            
+            <!-- ई-आईडी हेडर -->
+            <div id="modalHeaderBg" class="p-6 text-white relative">
+                <button onclick="closeModal('detailsModal')" class="absolute top-4 right-4 text-white/80 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center gap-4">
+                    <div id="modalAvatar" class="w-16 h-16 rounded-2xl bg-white/20 border-2 border-white flex items-center justify-center text-3xl font-bold shadow">
+                        A
+                    </div>
+                    <div>
+                        <span id="modalBadge" class="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-white/20 border border-white/30">
+                            वैवाहिक प्रोफाइल
+                        </span>
+                        <h3 id="modalName" class="text-2xl font-bold mt-1">सुरेश कुमार नेताम</h3>
+                        <p id="modalSub" class="text-xs text-white/80">आईडी: SAS-2026-001</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- डिटेल्स बॉडी -->
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto text-sm">
+                
+                <div class="grid grid-cols-2 gap-3 pb-3 border-b border-stone-200">
+                    <div>
+                        <span class="text-xs text-stone-400 block">जनजाति वर्ग (Tribe)</span>
+                        <span id="modalTribe" class="font-bold text-stone-800">गोंड</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-stone-400 block">गोत्र (Clan)</span>
+                        <span id="modalGotra" class="font-bold text-stone-800">नेताम</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-stone-400 block">पिता / अभिभावक</span>
+                        <span id="modalGuardian" class="font-bold text-stone-800">श्री रामसिंह नेताम</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-stone-400 block">सम्पर्क (WhatsApp)</span>
+                        <a id="modalMobileLink" href="#" target="_blank" class="font-bold text-emerald-700 flex items-center gap-1.5 mt-0.5">
+                            <i class="fa-brands fa-whatsapp text-emerald-600"></i> <span id="modalMobile">9876543210</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- केवल वैवाहिक होने पर दिखने वाले फील्ड्स -->
+                <div id="modalMatrimonySection" class="space-y-3 pb-3 border-b border-stone-200">
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <span class="text-xs text-stone-400 block">जन्म तिथि</span>
+                            <span id="modalDob" class="font-semibold text-stone-700">-</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-stone-400 block">ऊंचाई</span>
+                            <span id="modalHeight" class="font-semibold text-stone-700">-</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-stone-400 block">लिंग</span>
+                            <span id="modalGender" class="font-semibold text-stone-700">-</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <span class="text-xs text-stone-400 block">शिक्षा</span>
+                            <span id="modalEducation" class="font-semibold text-stone-700">-</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-stone-400 block">व्यवसाय एवं आय</span>
+                            <span id="modalWork" class="font-semibold text-stone-700">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-xs text-stone-400 block">निवास स्थान (जिला व पता)</span>
+                    <p id="modalAddress" class="font-semibold text-stone-800 mt-0.5">कोंडागांव, छत्तीसगढ़</p>
+                </div>
+
+                <div class="pt-4 flex gap-3">
+                    <button onclick="window.print()" class="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-print"></i> प्रिंट / PDF सेव करें
+                    </button>
+                    <button onclick="closeModal('detailsModal')" class="w-full bg-stone-800 hover:bg-stone-900 text-white font-bold py-2.5 rounded-xl transition">
+                        बंद करें
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- फुटर -->
+    <footer class="bg-stone-900 text-stone-400 text-center py-4 text-xs">
+        © 2026 सर्व आदिवासी समाज डिजिटल डायरेक्टरी मंच | एकता • स्वाभिमान • संस्कृति
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // डमी डिफ़ॉल्ट डेटा (यदि लोकलस्टोरेज खाली हो)
+        const initialData = [
+            {
+                id: "SAS-2601",
+                type: "MATRIMONY",
+                name: "कु. आरती मंडावी",
+                gender: "महिला",
+                guardian: "श्री सुखदेव मंडावी",
+                mobile: "9425000001",
+                tribe: "गोंड",
+                gotra: "मंडावी",
+                district: "कोंडागांव",
+                address: "बड़ेराजपुर, कोंडागांव",
+                dob: "1998-05-14",
+                height: "5 फीट 3 इंच",
+                education: "M.Sc. (Maths), B.Ed",
+                occupation: "शिक्षक (Guest Faculty)",
+                income: "₹25,000/माह"
+            },
+            {
+                id: "SAS-2602",
+                type: "MATRIMONY",
+                name: "राहुल कुमार सोरी",
+                gender: "पुरुष",
+                guardian: "श्री मंगतू राम सोरी",
+                mobile: "9425000002",
+                tribe: "मुरिया/माड़िया",
+                gotra: "सोरी",
+                district: "बस्तर",
+                address: "जगदलपुर, बस्तर",
+                dob: "1995-11-20",
+                height: "5 फीट 8 इंच",
+                education: "B.Tech (Civil)",
+                occupation: "शासकीय उप-अभियंता (Govt Sub-Engineer)",
+                income: "₹55,000/माह"
+            },
+            {
+                id: "SAS-2603",
+                type: "GENERAL",
+                name: "सोमेश बघेल",
+                gender: "पुरुष",
+                guardian: "श्री बलिराम बघेल",
+                mobile: "9425000003",
+                tribe: "हलबा",
+                gotra: "बघेल",
+                district: "कांकेर",
+                address: "चारामा, कांकेर",
+                dob: "",
+                height: "",
+                education: "",
+                occupation: "कृषि एवं सामाजिक कार्यकर्ता",
+                income: ""
+            }
+        ];
+
+        // डेटाबेस लोड करना
+        function getProfiles() {
+            const data = localStorage.getItem('adivasi_samaj_members');
+            if (!data) {
+                localStorage.setItem('adivasi_samaj_members', JSON.stringify(initialData));
+                return initialData;
+            }
+            return JSON.parse(data);
+        }
+
+        // कार्ड्स स्क्रीन पर प्रदर्शित (Render) करना
+        function renderCards() {
+            const profiles = getProfiles();
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const tribeFilter = document.getElementById('tribeFilter').value;
+            const grid = document.getElementById('cardsGrid');
+            const noData = document.getElementById('noDataMsg');
+
+            grid.innerHTML = '';
+
+            const filtered = profiles.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(search) || 
+                                    p.gotra.toLowerCase().includes(search) || 
+                                    p.district.toLowerCase().includes(search) ||
+                                    (p.occupation && p.occupation.toLowerCase().includes(search));
+                
+                const matchType = (typeFilter === 'ALL') || (p.type === typeFilter);
+                const matchTribe = (tribeFilter === 'ALL') || (p.tribe === tribeFilter);
+
+                return matchSearch && matchType && matchTribe;
+            });
+
+            document.getElementById('totalCount').innerText = filtered.length;
+
+            if (filtered.length === 0) {
+                noData.classList.remove('hidden');
+                return;
+            } else {
+                noData.classList.add('hidden');
+            }
+
+            filtered.forEach(p => {
+                const isMatrimony = p.type === 'MATRIMONY';
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-5 border border-stone-200 shadow-sm hover:shadow-xl hover:border-emerald-600 transition cursor-pointer relative group flex flex-col justify-between";
+                card.onclick = () => showDetails(p.id);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${isMatrimony ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}">
+                                ${isMatrimony ? '💍 वैवाहिक बायोडाटा' : '🌿 सामान्य सदस्य'}
+                            </span>
+                            <span class="text-xs text-stone-400 font-mono font-bold">${p.id}</span>
+                        </div>
+
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 rounded-full ${isMatrimony ? 'bg-rose-600' : 'bg-emerald-800'} text-white flex items-center justify-center font-bold text-lg shadow">
+                                ${p.name.charAt(0)}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-stone-900 group-hover:text-emerald-700 transition leading-tight">${p.name}</h4>
+                                <p class="text-xs text-stone-500 font-medium">गोत्र: <span class="text-stone-800 font-bold">${p.gotra}</span> | वर्ग: ${p.tribe}</p>
+                            </div>
+                        </div>
+
+                        <div class="text-xs space-y-1.5 text-stone-600 border-t pt-3">
+                            <p><i class="fa-solid fa-location-dot w-4 text-emerald-700"></i> ${p.district} (${p.address})</p>
+                            ${isMatrimony && p.education ? `<p><i class="fa-solid fa-graduation-cap w-4 text-emerald-700"></i> ${p.education}</p>` : ''}
+                            ${isMatrimony && p.occupation ? `<p><i class="fa-solid fa-briefcase w-4 text-emerald-700"></i> ${p.occupation}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-dashed flex justify-between items-center text-xs font-semibold text-emerald-700 group-hover:translate-x-1 transition duration-200">
+                        <span>पूर्ण विवरण देखें</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // कार्ड पर क्लिक करने पर पूरा डेटा पॉप-अप में लोड करना
+        function showDetails(id) {
+            const profiles = getProfiles();
+            const p = profiles.find(item => item.id === id);
+            if (!p) return;
+
+            const isMatrimony = p.type === 'MATRIMONY';
+            const header = document.getElementById('modalHeaderBg');
+            const badge = document.getElementById('modalBadge');
+            const matrimonySection = document.getElementById('modalMatrimonySection');
+
+            // हेडर रंग और बैज सेट करना
+            if (isMatrimony) {
+                header.className = "p-6 text-white relative bg-gradient-to-r from-rose-700 to-rose-600";
+                badge.innerText = "💍 वैवाहिक प्रोफाइल (अविवाहित)";
+                matrimonySection.classList.remove('hidden');
+            } else {
+                header.className = "p-6 text-white relative bg-gradient-to-r from-emerald-900 to-emerald-700";
+                badge.innerText = "🌿 पंजीकृत सामाजिक सदस्य";
+                matrimonySection.classList.add('hidden');
+            }
+
+            document.getElementById('modalAvatar').innerText = p.name.charAt(0);
+            document.getElementById('modalName').innerText = p.name;
+            document.getElementById('modalSub').innerText = `पंजीयन संख्या: ${p.id} • ${p.gender || 'सदस्य'}`;
+            document.getElementById('modalTribe').innerText = p.tribe;
+            document.getElementById('modalGotra').innerText = p.gotra;
+            document.getElementById('modalGuardian').innerText = p.guardian;
+            document.getElementById('modalMobile').innerText = p.mobile;
+            document.getElementById('modalMobileLink').href = `https://wa.me/91${p.mobile}?text=नमस्ते, सर्व आदिवासी समाज पोर्टल पर आपकी प्रोफाइल के सन्दर्भ में।`;
+            document.getElementById('modalAddress').innerText = `${p.address}, जिला- ${p.district}`;
+
+            // बायोडाटा स्पेसिफिक
+            if (isMatrimony) {
+                document.getElementById('modalDob').innerText = p.dob || 'उल्लेखित नहीं';
+                document.getElementById('modalHeight').innerText = p.height || 'उल्लेखित नहीं';
+                document.getElementById('modalGender').innerText = p.gender || '-';
+                document.getElementById('modalEducation').innerText = p.education || 'उल्लेखित नहीं';
+                document.getElementById('modalWork').innerText = `${p.occupation || '-'} (${p.income || 'आय गुप्त'})`;
+            }
+
+            document.getElementById('detailsModal').classList.remove('hidden');
+        }
+
+        // नया रजिस्ट्रेशन सेव करना
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const type = document.getElementById('entryType').value.toUpperCase();
+            const profiles = getProfiles();
+
+            const newMember = {
+                id: "SAS-" + Math.floor(1000 + Math.random() * 9000),
+                type: type,
+                name: document.getElementById('fullName').value.trim(),
+                gender: document.getElementById('gender').value,
+                guardian: document.getElementById('guardianName').value.trim(),
+                mobile: document.getElementById('mobile').value.trim(),
+                tribe: document.getElementById('tribe').value,
+                gotra: document.getElementById('gotra').value.trim(),
+                district: document.getElementById('district').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                dob: document.getElementById('dob').value,
+                height: document.getElementById('height').value.trim(),
+                education: document.getElementById('education').value.trim(),
+                occupation: document.getElementById('occupation').value.trim(),
+                income: document.getElementById('income').value.trim()
+            };
+
+            profiles.unshift(newMember);
+            localStorage.setItem('adivasi_samaj_members', JSON.stringify(profiles));
+
+            alert(`पंजीयन सफलतापूर्वक संपन्न हुआ!\nआपकी आईडी संख्या: ${newMember.id}`);
+            document.getElementById('registrationForm').reset();
+            closeModal('formModal');
+            renderCards();
+        }
+
+        // फॉर्म में टैब बदलना
+        function switchFormTab(type) {
+            document.getElementById('entryType').value = type;
+            const tabGen = document.getElementById('tabGeneral');
+            const tabMat = document.getElementById('tabMatrimony');
+            const matFields = document.getElementById('matrimonyFields');
+            const formTitle = document.getElementById('formTitle');
+
+            if (type === 'matrimony') {
+                tabMat.className = "py-2 text-xs font-bold rounded-lg transition bg-rose-600 text-white shadow";
+                tabGen.className = "py-2 text-xs font-bold rounded-lg transition text-stone-600";
+                matFields.classList.remove('hidden');
+                formTitle.innerText = "अविवाहित युवक-युवती परिचय पंजीयन";
+            } else {
+                tabGen.className = "py-2 text-xs font-bold rounded-lg transition bg-white shadow text-emerald-900";
+                tabMat.className = "py-2 text-xs font-bold rounded-lg transition text-stone-600";
+                matFields.classList.add('hidden');
+                formTitle.innerText = "सामान्य सामाजिक सदस्यता फॉर्म";
+            }
+        }
+
+        function openFormModal(defaultType) {
+            switchFormTab(defaultType);
+            document.getElementById('formModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // पहली बार लोड होने पर
+        window.onload = renderCards;
+    </script>
+</body>
+</html>
